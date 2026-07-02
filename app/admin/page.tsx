@@ -60,7 +60,7 @@ export default function AdminPage() {
             value={giftCode}
             onChange={(e) => setGiftCode(e.target.value)}
             placeholder="例: WOS2026"
-            className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-500 uppercase outline-none text-white"
+            className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-500 outline-none text-white"
             disabled={loading}
           />
 
