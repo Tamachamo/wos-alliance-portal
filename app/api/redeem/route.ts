@@ -11,20 +11,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'パラメータが不足しています' }, { status: 400 });
     }
 
+    // 修正点: toUpperCase() を削除し、入力されたそのままの文字（大文字・小文字）を使用する
     const code = giftCode.toString().trim();
     const targetPid = pid.toString().trim();
     const time = Date.now().toString();
 
+    // 1. MD5署名の生成
     const rawData = `cdk=${code}&fid=${targetPid}&time=${time}`;
     const signRaw = rawData + WOS_SECRET;
     const sign = crypto.createHash('md5').update(signRaw).digest('hex');
 
+    // 2. ペイロード作成
     const params = new URLSearchParams();
     params.append('cdk', code);
     params.append('fid', targetPid);
     params.append('time', time);
     params.append('sign', sign);
 
+    // 3. ホワサバ公式APIへ単発POST
     const res = await fetch(WOS_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -33,11 +37,13 @@ export async function POST(request: Request) {
     
     const json = await res.json();
     
+    // err_code: 20000 が成功
     if (json.err_code === 20000) {
       return NextResponse.json({ success: true, message: '成功' });
     } else {
       return NextResponse.json({ success: false, message: json.msg || '失敗' }, { status: 400 });
     }
+
   } catch (error) {
     return NextResponse.json({ success: false, message: 'サーバーエラー' }, { status: 500 });
   }
